@@ -101,7 +101,7 @@ analytics:
 # Site Author
 author:
   name             : "Sudharsan Ganesh"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "/images/biophoto.jpg"
   bio              : "Data Science Portfolio"
   location         : "Singapore"
   email            : "sud3010ganesh@gmail.com"
