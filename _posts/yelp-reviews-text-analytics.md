@@ -1,6 +1,8 @@
 ---
+layout: post
 title: "Text Analytics on Yelp Reviews"
 permalink: /yelp-reviews-text-analytics/
+categories: Text Analytics, Machine Learning 
 ---
 
 Yelp Reviews Data - Text Analytics
