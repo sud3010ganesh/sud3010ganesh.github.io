@@ -1,8 +1,8 @@
 # main links
 main:
-  - title: "About ME"
+  - title: "About Me"
     url: /about/
-   - title: "Sample Posts"
+  - title: "Text Analytics on Yelp Reviews"
     url: /yelp-reviews-text-analytics/
   # - title: "Sample Collections"
   #   url: /collection-archive/
