@@ -2,8 +2,6 @@
 main:
   - title: "About Me"
     url: /about/
-  - title: "Text Analytics on Yelp Reviews"
-    url: /yelp-reviews-text-analytics/
   # - title: "Sample Collections"
   #   url: /collection-archive/
   # - title: "Sitemap"

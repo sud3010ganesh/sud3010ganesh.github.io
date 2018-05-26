@@ -260,7 +260,7 @@ compress_html:
 defaults:
   # _posts
   - scope:
-      path: ""
+      path: "/yelp-reviews-text-analytics/"
       type: posts
     values:
       layout: single
