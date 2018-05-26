@@ -1,14 +1,8 @@
 ---
-layout: post
 title: "Text Analytics on Yelp Reviews"
 permalink: /2018-05-26-yelpreviewtextanalytics/
 categories: Text Analytics
-published: true
 ---
-
-Yelp Reviews Data - Text Analytics
-
-### Sudharsan Ganesh T
 
 ## Introduction
 
