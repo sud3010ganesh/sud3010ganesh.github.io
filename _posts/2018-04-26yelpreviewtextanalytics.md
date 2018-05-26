@@ -1,8 +1,9 @@
 ---
 layout: post
 title: "Text Analytics on Yelp Reviews"
-permalink: /yelp-reviews-text-analytics/
-categories: Text Analytics, Machine Learning 
+permalink: /2018-04-26yelpreviewtextanalytics/
+date: 2018-04-26 20:39:50 -0500
+categories: Text Analytics, Machine Learning
 ---
 
 Yelp Reviews Data - Text Analytics
