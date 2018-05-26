@@ -2,7 +2,7 @@
 layout: post
 title: "Text Analytics on Yelp Reviews"
 permalink: /2018-05-26-yelpreviewtextanalytics/
-categories: Text Analytics, Machine Learning
+categories: Text Analytics
 published: true
 ---
 
