@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "dark" #"air", "aqua", "contrast", "dark", "dirt", "n
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Sudharsan Ganesh"
+title                    : "Data Science Portfolio - Home"
 title_separator          : "-"
 name                     : "Sudharsan Ganesh"
 description              : "Data Science Portfolio"
@@ -102,7 +102,7 @@ analytics:
 author:
   name             : "Sudharsan Ganesh"
   avatar           : "/images/biophoto.jpg"
-  bio              : "Data Science Portfolio"
+  bio              : "M.Sc Business Analytics at NUS | Past - Decision Scientist at Mu Sigma | Current - Data Science Intern at NTUC Link"
   location         : "Singapore"
   email            : "sud3010ganesh@gmail.com"
   uri              :
