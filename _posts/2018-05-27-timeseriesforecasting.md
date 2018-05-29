@@ -127,7 +127,7 @@ plot(hw_forecasts)
 
 The point forecasts are shown as a blue line, and the 2 bands show 80% and 95% prediction intervals, respectively. The prediction intervals are important as they represent the uncertainty associated with the point forecast.
 
-We should now test the quality of the Holt's Winter model we have estimated. We can check whether the in sample forecast errors have constant variance over time, and are normally distributed with mean zero.
+We should now test the quality of the Holt-Winters model we have estimated. We can check whether the in sample forecast errors have constant variance over time, and are normally distributed with mean zero.
 
 
 ```r
@@ -184,4 +184,4 @@ MAPE
 ## [1] 0.02396997
 ```
 
-A MAPE of 2.4% indicates that the model performs well out of sample as well. We will explore the ARIMA time series forecasting method in a subsequent post.
+A MAPE of 2.4% indicates that the model performs well out of sample as well. We will explore the ARIMA forecasting method in a subsequent post.
