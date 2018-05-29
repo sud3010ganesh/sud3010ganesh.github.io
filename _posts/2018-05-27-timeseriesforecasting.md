@@ -16,7 +16,7 @@ permalink: /2018-05-27-timeseriesforecasting/
 1) Numerical information about the past is available;
 2) It is reasonable to assume that some aspects of the past patterns will continue into the future.
 
-  Most quantitative forecasting problems use either time series data (collected at regular intervals over time) or cross-sectional data (collected at a single point in time). In this post, we will explore time series techniques and show snippets to visualize and implement these method.
+  Most quantitative forecasting problems use either time series data (collected at regular intervals over time) or cross-sectional data (collected at a single point in time). In this post, we will explore time series techniques and show snippets to visualize and implement these methods.
 
 ## Problem Motivation
   Forecasts based on temperature are important to agriculture, and therefore to traders within commodity markets. They are used by utility companies to estimate demand over coming days. Also, they help determine future climate expectations. Our main motivation behind this exercise is to present a feasible time series model to forecast the weekly average temperature in Austin, Texas.
@@ -71,7 +71,7 @@ plot_my_timeseries(df_train,c("Temp_Avg"),52,c(2014,1))
 ![](/images/unnamed-chunk-4-1.png)<!-- -->
 
 ## Forecasting Techniques
-  Exponential smoothing and ARIMA models are the two most widely-used approaches to time series forecasting, and provide complementary approaches to the problem. While exponential smoothing models were based on a description of trend and seasonality in the data, ARIMA models aim to describe the autocorrelations in the data. Let us first explore the Holt-Winters Exponential Smoothing method.
+  Exponential Smoothing and ARIMA models are the two most widely-used approaches to time series forecasting, and provide complementary approaches to the problem. While exponential smoothing models were based on a description of trend and seasonality in the data, ARIMA models aim to describe the autocorrelations in the data. Let us first explore the Holt-Winters Exponential Smoothing method.
 
 ## Holt-Winters Exponential Smoothing
   The Holt-Winters model has a forecast equation and 3 smoothing equations to estimate the time series. Firstly, the level (or mean) is smoothed to give a local average value for the series. Secondly, the trend is smoothed and lastly each seasonal sub-series is smoothed separately to give a seasonal estimate for each of the seasons. The 3 smoothing parameters estimated are - alpha for level, beta for trend and gamma for seasonality
