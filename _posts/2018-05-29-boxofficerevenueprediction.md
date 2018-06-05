@@ -18,10 +18,10 @@ These metrics were picked for comparing model performance having looked at prior
 
 
 ## 1 Motivation
-The global box office revenue is projected to scale 50bn USD by 2020. The fact that movie making is an expensive business, makes it extremely imperative to ensure the movies made experience box office success. Knowing which movies are likely to fail and which movies are likely to succeed prior to the movie release is the holy grail for movie makers. Movie Box Office Revenue prediction prior to movie release can help production companies save millions of dollars. The scope to perform innovative feature engineering from the heavily textual fields and the large interest this problem has gained among scholars was our primary motivation behind picking this problem.
+The global box office revenue is projected to scale 50bn USD by 2020. The fact that movie making is an expensive business, makes it extremely imperative to ensure the movies made experience box office success. Knowing which movies are likely to fail and which movies are likely to succeed prior to the movie release is the holy grail for movie makers. Movie Box Office Revenue prediction prior to movie release can help production companies save millions of dollars. The scope to perform innovative feature engineering and the large interest this problem has gained among scholars was our primary motivation behind picking this problem.
 
 ## 2 Literature Review
-There has been a quite a lot of work around the movie box office revenue prediction problem. One of the most cited work for this specific problem is the paper “Predicting box-office success of motion pictures with neural networks”, and the author is Ramesh Sharda. He used neural networks as the main algorithm to perform box office prediction on a subset of our data.  We referred to these research papers and adopted identical problem formulation(as a multi class classification), model evaluation metrics to enable better benchmarking of our results.
+There has been a quite a lot of work around the movie box office revenue prediction problem. One of the most cited work for this specific problem is the paper “Predicting box-office success of motion pictures with neural networks”, and the author is Ramesh Sharda. He used neural networks as the main algorithm to perform box office prediction on a subset of our data.  We referred to prior literature and adopted identical problem formulation(as a multi class classification), model evaluation metrics to enable better benchmarking of our results.
 
 
 ## 3 Data Preparation
@@ -63,9 +63,7 @@ Some rows of data had a lot of missing values. The fact that these were text bas
 
 ### 3.2 Data Parsing
 Since a lot of the data was present in JSON arrays, we had to manipulate the dataframe to extract relevant information from these columns.
-e.g. We extracted the first 2 genres, first 2 production houses, first 2 keywords, first 6 cast members and crew members in important positions like Producer, Director etc
-We did this on the entire dataset before any filtering.
-We have shown a sample code for parsing the genres column below. The other JSON columns were parsed similarly and stored in csv files which we are reading here in the interest of time and space.
+e.g. We extracted the first 2 genres, first 2 production houses, first 2 keywords, first 6 cast members and crew members in important positions like Producer, Director etc. We did this on the entire dataset before any filtering. We have shown a sample code for parsing the genres column below. The other JSON columns were parsed similarly and stored in csv files. We subsequently read the stored csv files in the next steps.
 
 
 ```r
@@ -116,7 +114,7 @@ movies.cleaned <- movies.cleaned[ , !(names(movies.cleaned) %in% c("genres"))]
 For cast and crew members in the original data, we sourced popularity, birthdates and overview from TMDB using the tmdb api.
 Thus, we enriched the original dataset with popularity indicator, age, and mentions of academy award or golden globe in their overview(assuming these will only be mentioned if the person is nominated or wins the respective awards) of the cast and crew members.
 Since retrieving this data from internet is a time consuming process, we have retrieved and stored in csv files for reuse.
-The aggregated dataset is then reduced to easily readable, important columns that can be directly used in our model later.
+The aggregated dataset is then reduced to easily readable, important columns that can be directly used in our model.
 
 
 ```r
@@ -150,14 +148,14 @@ We used a  cutoff of 10,000$ on Revenue and filtered out any rows with Revenue l
 For movies with missing budget information, we manually researched online and entered the budget.
 
 ## 4 Feature Creation
-Some interesting features that we believed would be valuable for the model were hypthesises and created in the feature engineering stage. Some example of features we hypothesised would influence revenues :
+Some interesting features that we believed would be valuable for the model were created in the feature engineering stage. Some example of features we hypothesised would influence revenues :
 
 * Historical Performances of Crew and Cast in terms of Revenue, IMDB Ratings
 * Network Interaction Effect between Crew and Cast
 * Prior Academy Award Nominations of the Cast and Crew
 * Historical Collection of Production Company making the movie
 * Time features around movie release
-* Competition during Movie Release
+* Competition during movie release
 
 ### 4.1 Social Network of Movies
 Apart from these we decided to create some social network based features to analyse the network effect of the people and production houses involved with a movie.
@@ -168,7 +166,7 @@ iii) Has made more movies and highly rated movies of this particular genre earli
 iv) Has made more movies with other production houses/actors who are strong players in the industry
 Such hypothesis applies to directors, top cast members as well as production companies.
 
-To capture this network effect elegantly we have created a social network of movies, producers, directors, top cast members and production companies.
+To capture this network effect elegantly, we have created a social network of movies, producers, directors, top cast members and production companies.
 Every movie, producer, director, actor, production company is represented as a node.
 We have an edge between a movie and a producer/director/actor/production company if they were involved in this particular movie.
 The weight of this edge is given by the voter's rating for the movie in TMDB, ie highly rated movies have heavier edges.
@@ -263,9 +261,9 @@ E(movies.net)$edge.color <- "gray80"
 plot(movies.net, vertex.frame.color="#ffffff", edge.arrow.size=3)
 ```
 
-<img src="Stats_Publish_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+![png](/images/boxoffice_network.png)
 
-Using such relationship strengths between cast, crew and movies, Eigen scores were created and fed into the models to predict revenue.The features created in this manner were pre computed and stored to be imported for the final model.
+Using such relationship strengths between cast, crew and movies, Eigen scores were created and fed into the models to predict revenue. The features created in this manner were pre computed and stored to be imported for the final model.
 
 
 
@@ -273,24 +271,19 @@ Using such relationship strengths between cast, crew and movies, Eigen scores we
 
 We also created some other features as follows:
 
-Month of release
-Days to nearest holiday
-Number of movies released in a 2 week window around the release date (As a proxy for competition)
-Consumer Price Index for month and year as a proxy for inflation
+- Month of release
+
+- Days to nearest holiday
+
+- Number of movies released in a 2 week window around the release date (As a proxy for competition)
+
+- Consumer Price Index for month and year as a proxy for inflation
 
 These features were primarily to account for the time differences of when the movies were released.
-All these features were pre calculated separately in the interest of time.
-
-
-```r
-timefactors <- read.csv("movie_timefeatures.csv")
-timefactors <- timefactors[,!(names(timefactors) %in% c("release_date","revenue"))]
-movies.cleaned <- merge(movies.cleaned,timefactors)
-```
 
 ### 4.3 Historical Movie Features
 
-When we looked at movies revenues and performance, we hypothesised that the performance of the movie has a strong relationship with how the crew, cast, production company of the movie have fared in the past. We decided to create a historical revenue, historical movie count and historical count of IMDB votes and rating for the primary cast, crew and production company associated with the movie.
+When we looked at movies revenues and performance, we hypothesized that the performance of the movie has a strong relationship with how the crew, cast, production company of the movie have fared in the past. We decided to create a historical revenue, historical movie count and historical count of IMDB votes and rating for the primary cast, crew and production company associated with the movie.
 
 We have shown a sample snippet below of how we created one of the mentioned features.
 
@@ -309,22 +302,17 @@ historical_data_integrated<-merge(movies.cleaned,features_df,by=c("id"))
 ```
 The same procedure was repeated to compute the feature for other members and the processed data ready for modelling was created and imported in the modelling section.
 
-Having created time based, network based and historical attribute based features, we can look at the edge bundle plot of the key variables to understand the interactions between our features and the interaction with the target!
-
-<!--html_preserve--><div id="htmlwidget-045662788d67a7aaaad4" style="width:960px;height:576px;" class="edgebundleR html-widget"></div>
-<script type="application/json" data-for="htmlwidget-045662788d67a7aaaad4">{"x":{"json_real":"[{\"name\":\"popularity\",\"imports\":[\"popularity\",\"revenue\",\"vote_average\",\"HistoricalRevenue_Director\",\"HistoricalRevenue_Producer\",\"HistoricalRevenue_Composer\",\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\"]},{\"name\":\"revenue\",\"imports\":[\"revenue\",\"vote_average\",\"HistoricalRevenue_Director\",\"HistoricalRevenue_Producer\",\"HistoricalRevenue_Composer\",\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"vote_average\",\"imports\":[\"vote_average\",\"HistoricalRevenue_Director\",\"inflationovertheyears\",\"eigenscore_net\",\"eigenscore_bygenre_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_bygenre_prodcomp_02\"]},{\"name\":\"femaleRatio_Editing\",\"imports\":[\"femaleRatio_Editing\",\"femaleRatio_Production\",\"femaleRatio_Writing\"]},{\"name\":\"femaleRatio_Production\",\"imports\":[\"femaleRatio_Production\",\"femaleRatio_Directing\",\"femaleRatio_Writing\",\"femaleRatio_Art\"]},{\"name\":\"femaleRatio_Directing\",\"imports\":[\"femaleRatio_Directing\",\"femaleRatio_Writing\"]},{\"name\":\"femaleRatio_Writing\",\"imports\":\"femaleRatio_Writing\"},{\"name\":\"femaleRatio_Art\",\"imports\":\"femaleRatio_Art\"},{\"name\":\"femaleRatio_Sound\",\"imports\":\"femaleRatio_Sound\"},{\"name\":\"popularityProducer\",\"imports\":\"popularityProducer\"},{\"name\":\"popularityDirector\",\"imports\":\"popularityDirector\"},{\"name\":\"popularityComposer\",\"imports\":\"popularityComposer\"},{\"name\":\"popularityWriter\",\"imports\":\"popularityWriter\"},{\"name\":\"popularityScreenplay\",\"imports\":\"popularityScreenplay\"},{\"name\":\"HistoricalRevenue_Director\",\"imports\":[\"HistoricalRevenue_Director\",\"HistoricalRevenue_Producer\",\"HistoricalRevenue_Composer\",\"HistoricalRevenue_Writer\",\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"HistoricalRevenue_Producer\",\"imports\":[\"HistoricalRevenue_Producer\",\"HistoricalRevenue_Composer\",\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"HistoricalRevenue_Composer\",\"imports\":[\"HistoricalRevenue_Composer\",\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"HistoricalRevenue_Writer\",\"imports\":\"HistoricalRevenue_Writer\"},{\"name\":\"popularity_001\",\"imports\":\"popularity_001\"},{\"name\":\"popularity_002\",\"imports\":\"popularity_002\"},{\"name\":\"popularity_003\",\"imports\":\"popularity_003\"},{\"name\":\"popularity_004\",\"imports\":\"popularity_004\"},{\"name\":\"popularity_005\",\"imports\":\"popularity_005\"},{\"name\":\"popularity_006\",\"imports\":\"popularity_006\"},{\"name\":\"HistoricalRevenue_castid_001\",\"imports\":[\"HistoricalRevenue_castid_001\",\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"HistoricalRevenue_castid_002\",\"imports\":[\"HistoricalRevenue_castid_002\",\"HistoricalRevenue_castid_003\",\"HistoricalRevenue_PrimaryProductionHouse\"]},{\"name\":\"HistoricalRevenue_castid_003\",\"imports\":\"HistoricalRevenue_castid_003\"},{\"name\":\"HistoricalRevenue_PrimaryProductionHouse\",\"imports\":\"HistoricalRevenue_PrimaryProductionHouse\"},{\"name\":\"inflationovertheyears\",\"imports\":[\"inflationovertheyears\",\"eigenscore_net\",\"eigenscore\",\"eigenscore_bygenre_Director\",\"eigenscore_full_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"competitionscore\",\"imports\":\"competitionscore\"},{\"name\":\"eigenscore_net\",\"imports\":[\"eigenscore_net\",\"eigenscore\",\"eigenscore_bygenre_Director\",\"eigenscore_full_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Writer\",\"eigenscore_full_Writer\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore\",\"imports\":[\"eigenscore\",\"eigenscore_bygenre_Director\",\"eigenscore_full_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_Director\",\"imports\":[\"eigenscore_bygenre_Director\",\"eigenscore_full_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Writer\",\"eigenscore_full_Writer\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_Director\",\"imports\":[\"eigenscore_full_Director\",\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_Producer\",\"imports\":[\"eigenscore_bygenre_Producer\",\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Writer\",\"eigenscore_full_Writer\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_Producer\",\"imports\":[\"eigenscore_full_Producer\",\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_Screenplay\",\"imports\":[\"eigenscore_bygenre_Screenplay\",\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_Screenplay\",\"imports\":[\"eigenscore_full_Screenplay\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_Writer\",\"imports\":[\"eigenscore_bygenre_Writer\",\"eigenscore_full_Writer\",\"eigenscore_bygenre_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_bygenre_prodcomp_02\"]},{\"name\":\"eigenscore_full_Writer\",\"imports\":[\"eigenscore_full_Writer\",\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_Composer\",\"imports\":[\"eigenscore_bygenre_Composer\",\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_Composer\",\"imports\":[\"eigenscore_full_Composer\",\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_cast\",\"imports\":[\"eigenscore_bygenre_cast\",\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_cast\",\"imports\":[\"eigenscore_full_cast\",\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_bygenre_prodcomp_02\",\"imports\":[\"eigenscore_bygenre_prodcomp_02\",\"eigenscore_full_prodcomp_02\"]},{\"name\":\"eigenscore_full_prodcomp_02\",\"imports\":\"eigenscore_full_prodcomp_02\"},{\"name\":\"director_producer_movies_avggross\",\"imports\":\"director_producer_movies_avggross\"},{\"name\":\"cast_director_movies_avgrating\",\"imports\":\"cast_director_movies_avgrating\"}]","width":null,"height":null,"padding":100,"tension":0.5,"fontsize":14,"nodesize":[5,20],"directed":false},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
-
 ## 5. Modelling Overview
 
 The problem is designed to be a multi class classification problem and we are trying to predict the revenue bucket a movie can be classified to. Having explored a range of predictors in the feature creation section,  **71** shortlisted parameters were fed into the models to predict revenue buckets.
 
-The revenue bucket cutoffs have been identified by breaking the cpntinous revenue variable into deciles. We have revenue buckets ranging from 1 (flop movie) to 10(blockbuster) into which we can classify the movie into.The revenue cutoffs for buckets have been decided based on deciling the revenue variable over the dataset to avoid the class imbalance problem.
+The revenue bucket cutoffs have been identified by breaking the cpntinous revenue variable into deciles. We have revenue buckets ranging from 1 (flop movie) to 10(blockbuster) into which we can classify the movie into. The revenue cutoffs for buckets have been decided based on deciling the revenue variable over the dataset to avoid the class imbalance problem.
 
-
+In the snippet below, we pre load the final dataset named data_movies with all features in the working environment and then create the multi-class target variable based on deciling of revenue buckets.
 
 ```r
 require(dplyr)
-##The model ready, integrated dataset data_movies has been pre leaded in the working environment###
+##The model ready, integrated dataset data_movies has been pre loaded in the working environment###
 data_movies$revenuebuckets<-ntile(data_movies$revenue,10)
 data_movies$revenuebuckets<-as.factor(data_movies$revenuebuckets)
 ```
@@ -357,10 +345,7 @@ data_movies[shuffled.index, "fold"] <- rep(1:K, length.out=n)
 
 
 ### 5.1 Elastic Net Model
-The Elastic Net Model has been pre tuned with the optimal Lambda and Alpha values having been stored. Since our problem was a multi class classification problem, we have used the multinomial family in the elastic net to build our model.
-
-
-
+The Elastic Net Model has been tuned to find the optimal Lambda and Alpha values. Since our problem was a multi class classification problem, we have used the multinomial family in the elastic net to build our model.
 
 We obtained an optimal alpha value of 1 and optimal lamda value for 1SE as 0.006040416 as shown in the table below.
 
@@ -468,7 +453,7 @@ require(randomForest)
 varImpPlot(rf_overall, main="Variable Importance - Random Forest", n.var=20)
 ```
 
-<img src="Stats_Publish_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+![png](/images/boxoffice_varimp.png)
 
 To compare the champion Random Forest Model with other models we deploy manual K-Fold Cross Validation. We have already made 10 folds on our dataset and we will use them for getting our Confusion Matrix, Bingo Classification Accuracy and 1-Away Classification Accuracy of the Elastic Net Model. The K-Folds used for Cross validation are consistent with the ones used in the prior Elastic Net Models.
 
@@ -534,15 +519,13 @@ final_acc_rf
 ### 5.3 XGBoost Model
 
 In XGBoost to perform multi class classification, we have used the objective function called "multi:softmax".
-The XGBoost model for predicting the revenue buckets has been pretrained on the entire dataset and the optimal hyper parameters have been idenitified as follows,
+The XGBoost model for predicting the revenue buckets has been pre trained on the entire dataset and the optimal hyper parameters have been identified as follows,
 
-ETA - 0.01
-Maximum Tree Depth - 6
-Subsample Ratio - 0.5
-ColSample Ratio - 1
-Number of Rounds - 4082
-
-In order to perform, multi class classification in XGBoost, we need to offset the value in the revenue buckets by 1 and create new class levels between 0 and 9 to acccomodate a syntax issue with XGBoost for multi class families.
+- ETA - 0.01
+- Maximum Tree Depth - 6
+- Subsample Ratio - 0.5
+- ColSample Ratio - 1
+- Number of Rounds - 4082
 
 
 ```r

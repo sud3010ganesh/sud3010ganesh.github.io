@@ -3,40 +3,108 @@ title: "Text Analytics on Yelp Reviews"
 permalink: /2018-05-26-yelpreviewtextanalytics/
 ---
 
-## Introduction
+Leveraging structured information like numerical and categorical variables for predictive analytics has been done in academics for a relatively long period of time. However, using textual information has been very recent, mostly within the last 2 decades and is still evolving because existing academic studies in social sciences mostly use non - Natural Language Processing methods i.e they do not fully use the power of text. In this post, we will attempt to see a simple workflow that can help turn textual information into numeric information for analytics.
+
+Text analytics, also known as text mining, is the methodology and process followed
+to derive actionable information and insights from textual data. This involves
+using NLP, information retrieval, and machine learning techniques to parse unstructured
+text data into more structured forms and deriving patterns and insights from this data
+that would be helpful for the end user.
+
+Some of the main techniques in text analytics include,
+- Text classification
+- Text clustering
+- Text summarization
+- Entity extraction and recognition
+
+## Motivation
+
+The applications of text mining are manifold and some of the most popular ones include the following,
+- Spam detection
+- Sentiment analysis
+- Chatbots
+- Ad placements
+- Social media analysis
+
+In this post, we will attempt to analyze the Yelp dataset and predict the sentiment associated with a review using text information from reviews by sentiment analysis.
+
+
+## Methodology
+A simple text analytics pipeline for supervised classification can be visualized in the workflow given below,
+
+![png](/images/output_workflow.png)
+
+The primary blocks in the above workflow include,
+-	Text Pre-Processing and Normalization
+-	Feature Extraction
+-	Supervised Machine Learning Algorithm
+
+### Text Pre-Processing and Normalization:
+Any unstructured data in its raw format is not well-formatted. Text pre-processing involves deploying a variety of techniques to convert raw text into well-defined sequences with standard structure and notation. Some of the pre-processing techniques that can be explored to standardize the text data include,
+-	Stop words and special character removal
+-	Tokenization
+-	Stemming
+-	Lemmatization
+
+Leveraging some of these techniques will help improve the quality of inputs being fed into the feature extraction block. This text cleaning step is essential for real world problems although we skip this particular step in this post.
+
+### Feature Extraction
+
+The feature extraction block helps convert the standardized text into numeric/categorical features that can be used for learning by the supervised learning models. This process is also called Vectorization as we convert every document into a feature vector to be fed into the supervised classification models. Some standard techniques that are usually deployed for vectorization are,
+
+1)	Bag of Words Model
+
+2)	Term Frequency – Inverse Document Frequency Model
+
+3)	Advanced Word Vectorization models (using Google’s word2vec algorithm)
+
+### Supervised Learning
+
+From prior literature, there are some supervised learning algorithms that tend to perform better for text classification problems. These algorithms include,
+
+o	Multinomial Naïve Bayes
+
+o	Support Vector Machines
+
+o	Neural Nets
+
+Other techniques like logistic regression, decision trees, random forests and gradient boosting can be explored. However, the success of these algorithms has usually been restricted to problems involving structured data.
+
+
+
+## Data Overview
 
 This project uses a small subset of the data from Kaggle's [Yelp Business Rating Prediction](https://www.kaggle.com/c/yelp-recsys-2013) competition.
 
 **Description of the data:**
 
-- **`yelp.csv`** contains the dataset. It is stored in the course repository (in the **`data`** directory), so there is no need to download anything from the Kaggle website.
+- **`yelp.csv`** contains the dataset.
 - Each observation (row) in this dataset is a review of a particular business by a particular user.
 - The **stars** column is the number of stars (1 through 5) assigned by the reviewer to the business. (Higher stars is better.) In other words, it is the rating of the business by the person who wrote the review.
 - The **text** column is the text of the review.
-
-**Goal:** Predict the star rating of a review using **only** the review text.
-
-**Tip:** After each task, I recommend that you check the shape and the contents of your objects, to confirm that they match your expectations.
+- The **cool/useful/funny** fields represent the comments on the review left by other users
 
 
-```python
-# for Python 2: use print only as a function
-# from __future__ import print_function
-```
 
-
-Read **`yelp.csv`** into a Pandas DataFrame and examine it.
+Let us read **`yelp.csv`** into a Pandas DataFrame and examine it.
 
 
 ```python
 import pandas as pd
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 ```
 
 
 ```python
 path = 'yelp.csv'
 yelp = pd.read_csv(path)
-###Check Shape of Dataset###
+```
+
+The shape of the dataset can be examined using the shape function.
+
+
+```python
 yelp.shape
 ```
 
@@ -47,10 +115,165 @@ yelp.shape
 
 
 
+We notice that there are 10,000 review texts that are present in the dataset. We add a field to represent the length of the text field as we would attempt to see any relation between text sentiment and review length. We can now examine a sample of the dataset using the head() function.
 
-Create a new DataFrame that only contains the **5-star** and **1-star** reviews.
 
-- **Hint:** [How do I apply multiple filter criteria to a pandas DataFrame?](https://www.youtube.com/watch?v=YPItfQ87qjM&list=PL5-da3qGB5ICCsgW1MxlZ0Hq8LL5U3u9y&index=9) explains how to do this.
+```python
+yelp['text length'] = yelp['text'].apply(len)
+yelp.head(5)
+```
+
+
+
+
+<div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+
+    .dataframe thead th {
+        text-align: left;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>business_id</th>
+      <th>date</th>
+      <th>review_id</th>
+      <th>stars</th>
+      <th>text</th>
+      <th>type</th>
+      <th>user_id</th>
+      <th>cool</th>
+      <th>useful</th>
+      <th>funny</th>
+      <th>text length</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>9yKzy9PApeiPPOUJEtnvkg</td>
+      <td>2011-01-26</td>
+      <td>fWKvX83p0-ka4JS3dc6E5A</td>
+      <td>5</td>
+      <td>My wife took me here on my birthday for breakf...</td>
+      <td>review</td>
+      <td>rLtl8ZkDX5vH5nAx9C3q5Q</td>
+      <td>2</td>
+      <td>5</td>
+      <td>0</td>
+      <td>889</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ZRJwVLyzEJq1VAihDhYiow</td>
+      <td>2011-07-27</td>
+      <td>IjZ33sJrzXqU-0X6U8NwyA</td>
+      <td>5</td>
+      <td>I have no idea why some people give bad review...</td>
+      <td>review</td>
+      <td>0a2KyEL0d3Yb1V6aivbIuQ</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1345</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6oRAC4uyJCsJl1X0WZpVSA</td>
+      <td>2012-06-14</td>
+      <td>IESLBzqUCLdSzSqm0eCSxQ</td>
+      <td>4</td>
+      <td>love the gyro plate. Rice is so good and I als...</td>
+      <td>review</td>
+      <td>0hT2KtfLiobPvh6cDC8JQg</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>76</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>_1QQZuf4zZOyFCvXc0o6Vg</td>
+      <td>2010-05-27</td>
+      <td>G-WvGaISbqqaMHlNnByodA</td>
+      <td>5</td>
+      <td>Rosie, Dakota, and I LOVE Chaparral Dog Park!!...</td>
+      <td>review</td>
+      <td>uZetl9T0NcROGOyFfughhg</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0</td>
+      <td>419</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>6ozycU1RpktNG2-1BroVtw</td>
+      <td>2012-01-05</td>
+      <td>1uJFq2r5QfJG_6ExMRCaGw</td>
+      <td>5</td>
+      <td>General Manager Scott Petello is a good egg!!!...</td>
+      <td>review</td>
+      <td>vYmM4KTsC8ZfQBg-j5MWkw</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>469</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+## Data Exploration
+
+
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+We will use the Seaborn package for visualization in Python. The facet grid function can be used to plot histograms and visualize if there are any relationships between review length and review sentiment.
+
+
+```python
+g = sns.FacetGrid(data=yelp, col='stars')
+g.map(plt.hist, 'text length', bins=50)
+plt.show()
+```
+
+
+![png](/images/output_18_0.png)
+
+
+The distribution of text length looks similar across all five ratings. However, the count of text reviews seems to be skewed a lot higher towards the 4-star and 5-star ratings
+
+
+```python
+box = sns.boxplot(x='stars', y='text length', data=yelp)
+plt.show()
+```
+
+
+![png](/images/output_20_0.png)
+
+
+The boxplot shows that reviews with a lower star rating (i.e 1 and 2) tend to have a higer median length as compared to the higher star reviews. We can infer that when people are unhappy or want to express a negative sentiment, they tend to write more content in the reviews. So, a shorter review is not always a bad indicator as these could mean users with positive sentiment use fewer words describing their experience.
+
+## Data Filtration
+
+
+We will filter the dataset to contain only the **5-star** and **1-star** reviews as they represent polar opposite sentiments and will enable us to design the problem into a simple binary classification as opposed to a multinomial classification problem otherwise.
+
 
 
 ```python
@@ -61,7 +284,7 @@ yelp_best_worst.shape
 
 
 
-    (4086, 10)
+    (4086, 11)
 
 
 
@@ -80,22 +303,13 @@ yelp_best_worst.stars.value_counts().sort_index()
 
 
 
+The dataset that we will be using for model building and validation has class imbalance as seen from the class distribution of reviews.
 
-```python
-type(yelp_best_worst)
-```
-
+## Feature Creation
 
 
+We define X and y from the new dataframe, and then split X and y into training and testing sets, using the **review text** as the only feature and the **star rating** as the response. We perform the train/test data split prior to vectorization as we want the training document-term matrix  to have terms only from the training set. If we first create a document-term matrix and then perform train-test split on the matrix, the training document-term matrix will contain the terms from the test set that were not seen on the training set. This is an important step that must be kept in mind as it might otherwise bias our results in real world scenarios.
 
-    pandas.core.frame.DataFrame
-
-
-
-
-Define X and y from the new DataFrame, and then split X and y into training and testing sets, using the **review text** as the only feature and the **star rating** as the response.
-
-- **Hint:** Keep in mind that X should be a Pandas Series (not a DataFrame), since we will pass it to CountVectorizer in the task that follows.
 
 
 ```python
@@ -107,13 +321,9 @@ y = yelp_best_worst.stars
 
 ```python
 # split X and y into training and testing sets
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 ```
-
-    C:\Users\Sudarshan\Anaconda3\lib\site-packages\sklearn\cross_validation.py:44: DeprecationWarning: This module was deprecated in version 0.18 in favor of the model_selection module into which all the refactored classes and functions are moved. Also note that the interface of the new CV iterators are different from that of this module. This module will be removed in 0.20.
-      "This module will be removed in 0.20.", DeprecationWarning)
-
 
 
 ```python
@@ -127,7 +337,7 @@ print(X_test.shape)
 
 
 
-Use CountVectorizer to create **document-term matrices** from X_train and X_test.
+We now use CountVectorizer to create **document-term matrices** from X_train and X_test. In this step, the reviews are vectorized using CountVectorizer() to be subsequently fed into the supervised classification model.
 
 
 ```python
@@ -159,10 +369,12 @@ print(X_test_dtm.shape)
     (1022, 16825)
 
 
+## Model Building and Validation
 
-Use Multinomial Naive Bayes to **predict the star rating** for the reviews in the testing set, and then **calculate the accuracy** and **print the confusion matrix**.
 
-- **Hint:** [Evaluating a classification model](https://github.com/justmarkham/scikit-learn-videos/blob/master/09_classification_metrics.ipynb) explains how to interpret both classification accuracy and the confusion matrix.
+We fit a Multinomial Naive Bayes model using the training document-term matrix as features and the review rating (1 or 5) as the target variable. We then  **predict the star rating** for the test document-term matrix, and then **calculate the accuracy** and **print the confusion matrix**.
+
+
 
 
 ```python
@@ -196,13 +408,12 @@ print(metrics.confusion_matrix(y_test, y_pred_class))
 
 
 
-Calculate the **null accuracy**, which is the classification accuracy that could be achieved by always predicting the most frequent class.
+To benchmark our model, we build a baseline model and compute the **null accuracy**, which is the classification accuracy that could be achieved by always predicting the most frequent class(i.e a review rating of 5). The improvement over the baseline model would be a true representation of how good our model is.
 
-- **Hint:** [Evaluating a classification model](https://github.com/justmarkham/scikit-learn-videos/blob/master/09_classification_metrics.ipynb) explains null accuracy and demonstrates two ways to calculate it, though only one of those ways will work in this case. Alternatively, you can come up with your own method to calculate null accuracy!
+
 
 
 ```python
-####Null Accuracy####
 ###NULL Accuracy : No of correct classifications when we predict all record to be star rating 5####
 y_test.value_counts().head(1)/y_test.shape
 ```
@@ -215,22 +426,21 @@ y_test.value_counts().head(1)/y_test.shape
 
 
 
+The MultiNomial Naive Bayes model with an accuracy of 91.87% shows a substantial improvement over the baseline model which shows an accuracy of 81.9%.
 
 
-Browse through the review text of some of the **false positives** and **false negatives**. Based on your knowledge of how Naive Bayes works, do you have any ideas about why the model is incorrectly classifying these reviews?
-
-- **Hint:** [Evaluating a classification model](https://github.com/justmarkham/scikit-learn-videos/blob/master/09_classification_metrics.ipynb) explains the definitions of "false positives" and "false negatives".
-- **Hint:** Think about what a false positive means in this context, and what a false negative means in this context. What has scikit-learn defined as the "positive class"?
-
-
-
-In our classification problem,  Naive Bayes has taken 5 star rating as positive class and 1 star rating as a negative class.
+In our classification problem,  Naive Bayes has taken 5 star rating as positive class and 1 star rating as a negative class.  The errors made by the model in binary classification problems can be of two types - False positives and False negatives.
 
 **FALSE POSITIVE**
 A false positive is a scenario where the actual label is 0 but the predicted label is 1. In this scenario if we predict an actual bad rating(1 star) as a good rating(5 star) we can call the observation to be a false positive
 
 **FALSE NEGATIVE**
 A false negative is a scenario where the actual label is 1 but the predicted label is 0. In this scenario if we predict an actual good rating(5 star) to be a bad rating(1 star) we can call the observation to be a false negative
+
+## Findings and Insights
+
+We can  review the records which are **false positives** and **false negatives** to analyze where the model is making mistakes. This intuition can help improve the accuracy in subsequent model iterations.
+
 
 
 ```python
@@ -278,38 +488,19 @@ X_test[y_test > y_pred_class].sample(10, random_state=6)
 
 
 
-**Hypothesis :**
-1) Naive Bayes classifier makes an assumption that features are independent given the target variable.
-Features thar are marginally correlated can result in misclassification. This results in Naive Bayes missing out on sarcastic reviews which do cannot be detected by assuming feature independence. This is one of the primary reasons for misclassification. Another example could be the case of double negation being used to indicate something positive. Two negative tokens can be combined to talk about something positive.
-This correlation between features will result in false classification as naive bayes assumes features independence.
+**Hypothesis on mistakes made by the model:**
 
-2) Naive Bayes does not work well when there is class imbalance. The current data we trained one has 2499 reviews with 5 stars and 565 reviews with 1 star. This can be one of the possible hypothesis for misclassification.
+1) Naive Bayes classifier makes an assumption that features are independent given the target variable. Features that are marginally correlated can result in misclassification. This results in Naive Bayes missing out on sarcastic reviews which  cannot be detected by assuming feature independence. This is one of the primary reasons for misclassification. Another example could be the case of double negation being used to indicate something positive. Two negative tokens can be combined to talk about something positive. This correlation between features will result in false classification as this model assumes features independence.
 
-3) We can also notice that there is a tendancy for negative reviews to be much longer in detail. A quick examination shows some of the positive reviews have been pretty long and have been misclassified.
+2) Naive Bayes does not work well when there is class imbalance. The current data we trained on has strong imbalance and that can be one of the possible reasons for misclassification.
 
-4) Naive Bayes also has a tendancy to make extreme classifications with probabilties close to zero or one. There are some reviews that are too close to call which Naive Bayes misclassifies as a result of this property.
+3) We can also notice that there is a tendency for negative reviews to be much longer in detail. A quick examination shows some of the positive reviews have been pretty long and are misclassified. Including this feature along with the document-term matrix can further improve accuracy.
 
+4) Naive Bayes also has a tendency to make extreme classifications with probabilties close to zero or one. There are some reviews that are too close to call which Naive Bayes misclassifies as a result of this property.
 
 
-```python
-###Class Imbalance##
+We can further get some intuition on the the sentiment analysis by looking at the top tokens present in positive and negative reviews. We calculate which 10 tokens are the most predictive of **5-star reviews**, and which 10 tokens are the most predictive of **1-star reviews**.
 
-y_train.value_counts()
-```
-
-
-
-
-    5    2499
-    1     565
-    Name: stars, dtype: int64
-
-
-
-
-Calculate which 10 tokens are the most predictive of **5-star reviews**, and which 10 tokens are the most predictive of **1-star reviews**.
-
-- **Hint:** Naive Bayes automatically counts the number of times each token appears in each class, as well as the number of observations in each class. You can access these counts via the `feature_count_` and `class_count_` attributes of the Naive Bayes model object.
 
 
 ```python
@@ -387,7 +578,7 @@ tokens = pd.DataFrame({'token':X_train_tokens, 'one_star':one_star_token_count, 
 
 
 ```python
-# examine 5 random DataFrame rows
+##examine a random sample of tokens#
 tokens.sample(5, random_state=3)
 ```
 
@@ -536,7 +727,7 @@ nb.class_count_
 
 
 
-**We convert the count of a token to frequency of the token by dividing it with the total number of tokens in the respective class(five star or one star). This is done to compute the goodness of each token as a predictor relative to other tokens in its class.**
+We convert the count of a token to frequency of the token by dividing it with the total number of tokens in the respective class(five star or one star). This is done to compute the goodness of each token as a predictor relative to other tokens in its class.
 
 
 ```python
@@ -614,7 +805,7 @@ tokens.sample(5, random_state=3)
 tokens['fivestar_to_onestar_ratio'] = tokens.five_star / tokens.one_star
 ```
 
-**The top 10 tokens that help predict five star reviews can be seen below. Words like fantastic, positive, yum, favorite, outstanding etc. which have a positive connotation tend to be more useful in predicting five star reviews**
+The top 10 tokens that help predict five star reviews can be seen below. Words like fantastic, positive, yum, favorite, outstanding etc. which have a positive connotation tend to be more useful in predicting five star reviews
 
 
 ```python
@@ -720,7 +911,7 @@ tokens.sort_values('fivestar_to_onestar_ratio', ascending=False).head(10)
 
 
 
-**The top 10 tokens that help predict one star reviews can be seen below. Words like refused, disgusting, filthy etc. which have a negative connotation tend to be more useful in predicting one star reviews. The most useful token for predicting one star review is staff person. This indicates that most people who give a poor rating are driven by poor customer service by the staff.**
+The top 10 tokens that help predict one star reviews can be seen below. Words like refused, disgusting, filthy etc. which have a negative connotation tend to be more useful in predicting one star reviews. The most useful token for predicting one star review is staff person. This indicates that most people who give a poor rating are driven by poor customer service of the staff.
 
 
 ```python
@@ -839,9 +1030,6 @@ tokens.sort_values('onestar_to_fivestar_ratio', ascending=False).head(10)
 
 
 
-These results align with our intuition that positive connotations are more prevalent in 5 star reviews and negative connotations are more prevalent in one star reviews.
+## Summary
 
-
-```python
-
-```
+In this post, we have looked at the different stages involved in a text classification workflow. We have performed a sentiment analysis on the Yelp dataset to predict the sentiment of a review from the review text using Multinomial Naive Bayes model. We also have understood vectorization that helps to convert raw unstructured information into features suitable for machine learning models.
