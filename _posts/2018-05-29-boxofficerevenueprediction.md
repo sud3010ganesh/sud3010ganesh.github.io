@@ -345,9 +345,10 @@ data_movies[shuffled.index, "fold"] <- rep(1:K, length.out=n)
 
 
 ### 5.1 Elastic Net Model
-The Elastic Net Model has been tuned to find the optimal Lambda and Alpha values. Since our problem was a multi class classification problem, we have used the multinomial family in the elastic net to build our model.
+The Elastic Net algorithm works by shrinking the beta coefficients of less important variable towards zero. It has two main parameters to tune - alpha and lambda. Lambda is the penalty coefficient and it's allowed to take any number. Alpha refers to the type of model we want to try and ranges from 0 to 1. If alpha = 0, we have a ridge model and if alpha = 1, we have a LASSO model and any value in between is Elastic net.
+Since our problem was a multi class classification problem, we have used the multinomial family in the elastic net to build our model.
 
-We obtained an optimal alpha value of 1 and optimal lamda value for 1SE as 0.006040416 as shown in the table below.
+We obtained an optimal alpha value of 1 and optimal lambda value for 1SE as 0.006 as seen from the table below.
 
 ![**Figure 1: Tuning Parameters for ElasticNet**](/images/GLMNetTuning.png)
 
@@ -427,7 +428,8 @@ final_acc_el
 
 
 ### 5.2 Random Forest Model
-In the random forest model for multi class classification, we have pre tuned the model and obtained an optimal mtry of 28 which can be seen from the plot below.
+
+In the random forest model for multi class classification, we have tuned the model for mtry parameter. Mtry parameter in random forest refers to the number of features we select by random sampling while building each tree in the forest. We have obtained an optimal mtry of 28 as seen from the following plot.
 
 ![**Figure 2: Tuning Parameters for Random Forest**](/images/Mtry_RandomForest.png)
 
@@ -439,14 +441,10 @@ eigenscore+releaseyear+HistoricalVoteCount_Actor+HistoricalVoteCount_PrimaryProd
 ```
 
 
-We can use the tuned mtry to build a model on the complete dataset to get the variable importance of our predictors. The Variable importance of top 20 predictors are displayed below,
+We can use the tuned mtry to build a model on the complete dataset to get the variable importance of the predictors. The Variable importance of top 20 predictors are displayed below,
 
 ```r
 require(randomForest)
-```
-
-```
-## Warning: package 'randomForest' was built under R version 3.4.1
 ```
 
 ```r
@@ -519,7 +517,7 @@ final_acc_rf
 ### 5.3 XGBoost Model
 
 In XGBoost to perform multi class classification, we have used the objective function called "multi:softmax".
-The XGBoost model for predicting the revenue buckets has been pre trained on the entire dataset and the optimal hyper parameters have been identified as follows,
+The XGBoost model for predicting the revenue buckets has been trained on the entire dataset and the optimal hyper parameters identified using grid search are as follows, 
 
 - ETA - 0.01
 - Maximum Tree Depth - 6
@@ -692,13 +690,13 @@ final_acc_ensemble
 
 ## 6. Model Comparison{#modelcomparison}
 
-To compare the multiple models, we have done manual K-Fold cross validation with consistent folds as shown in the prior sections. Figure 3 shows the variation of Bingo Classification Accuracy and 1-Away Classification Accuracy across the revenue buckets as well as the overall accuracies.
+To compare the multiple models, we have done manual K-Fold cross validation with consistent folds as shown in the prior sections. The following figure shows the variation of Bingo Classification Accuracy and 1-Away Classification Accuracy across the revenue buckets as well as the overall accuracies.
 
 
 ![**Figure 3: Model Comparison - Bingo and One Away Classification Accuracy**](/images/ModelComparison.png)
 
 
-In Figure 4, we can observe how the classification accuracy is pretty high towards the extreme revenue buckets but it becomes extremely hard for the models to distinguish between the revenue buckets in the intermediate ranges.
+ We can observe how the classification accuracy is pretty high towards the extreme revenue buckets but it becomes extremely hard for the models to distinguish between the revenue buckets in the intermediate ranges as shown below.
 
 ![**Figure 4: Model Comparison - Bingo Classification Accuracy**](/images/ModelComparison_2.png)
 
@@ -725,7 +723,7 @@ The Random Forest model performs the best among the 3 traditional models that we
 
 The model comparisons show that Random Forest has proven to be the best statistical modelling method for this multi-class classification problem with a Bingo Classification Accuracy of 27.43% and a 1 Away Classification Accuracy of 59.43%. The Ensemble Model we built performed marginally better than our Random Forest Model on the Bingo Classification Accuracy measure. The primary research paper cited for the movie box office prediction was by Sharda which had a Neural Network Classifier perform the best with a Bingo Classification Accuracy of 36.9%. However the dataset used by the research paper was a much smaller subset of our dataset(excluding a lot of old movies), had fewer revenue buckets and incorporated a lot of manually engineered features.
 
-The performance of our models can be further by improving the completeness/reliablity of revenue reported for the most recently released movies. There are other text based fields like keywords, movie overview which can be explored as well to improve model performance. However these features are a good starting point to improve on our prediction accuracy on the movie box office prediction problem.
+The performance of our models can be further by improving the completeness/reliability of revenue reported for the most recently released movies. There are other text based fields like keywords, movie overview which can be explored as well to improve model performance. However these features are a good starting point to improve on our prediction accuracy on the movie box office prediction problem.
 
 
 ## 10. References
