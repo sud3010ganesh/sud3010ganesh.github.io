@@ -7,6 +7,6 @@ I'm Sudharsan, a Data Science professional with a Masters in Business Analytics 
 
 My current topics of interest include Natural Language Processing, Causal Inference, Time Series Forecasting, Recommender Systems and Risk Management.
 
-In my spare time, I play tennis, watch Football and backpack to pristine locations. I have also worked with a NGO that uses data to drive women safety initiatives to leverage my analytics skills for a social cause.
+In my spare time, I play tennis, watch football and backpack to pristine locations. I have also worked with a NGO that uses data to drive women safety initiatives to leverage my analytics skills for a social cause.
 
 I strongly believe in the principle of Learning over Knowing. I am constantly on the lookout to discuss and learn from new people about data science, tennis, football and travel over a cup of coffee. Feel free to shoot me an email at sud3010ganesh@gmail.com
