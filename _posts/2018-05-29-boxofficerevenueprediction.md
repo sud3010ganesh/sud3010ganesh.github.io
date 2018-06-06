@@ -7,25 +7,22 @@ The movie box office revenue prediction is a problem that is widely being worked
 
 The raw movie dataset sourced from Kaggle had entries for 4803 movies. In addition to our target variable revenue, the dataset had a range of features including information around budget, cast, crew, movie genre, movie synopsis, production company etc. These features had to be engineered to suitable numeric/categorical features prior to modelling. In our final modelling data, after exploring a range of features we fed 71 features into the models.
 
-The 3 primary statistical modelling techniques that were used to solve this multinomial classification problem were Elastic Net, Random Forest and XGBoost. The three models were then used to create a rule-based ensemble model. The techniques were compared using manual K-fold Cross Validation. Random Forest had the best performance measure among the primary modeling techniques.
+The 3 primary statistical modelling techniques that were used to solve this multinomial classification problem were Elastic Net, Random Forest and XGBoost. The three models were then used to create a rule-based ensemble model. The techniques were compared using manual K-fold cross validation. Random Forest showed the best performance measure among the primary modeling techniques.
 
-The 2 performance measures used to evaluate models through K-Fold Cross Validation were :
+The 2 performance metrics used to evaluate models through K-Fold Cross Validation were :
 
 1. Average percentage of classifying a movie performance in the exact class - **Bingo Classification Accuracy**
 2. Average percentage of classifying a movie performance within one class of its true performance - **1 Away Classification Accuracy**
 
-These metrics were picked for comparing model performance having looked at prior literature on this problem.
-
-
 ## 1 Motivation
-The global box office revenue is projected to scale 50bn USD by 2020. The fact that movie making is an expensive business, makes it extremely imperative to ensure the movies made experience box office success. Knowing which movies are likely to fail/succeed prior to the movie release is the holy grail for movie makers. Movie box office revenue prediction prior to movie release can help production companies save millions of dollars. The scope to perform innovative feature engineering and a large interest this problem has gained among scholars was our primary motivation behind picking this problem.
+The global box office revenue is projected to scale 50bn USD by 2020. The fact that movie making is an expensive business, makes it extremely imperative to ensure that movies experience box office success. Knowing which movies are likely to fail/succeed prior to the movie release is the holy grail for movie makers. Movie box office revenue prediction prior to movie release can help production companies save millions of dollars. The scope to perform innovative feature engineering and a large interest this problem has gained among scholars was our primary motivation behind picking this problem.
 
 ## 2 Literature Review
 There has been a quite a lot of work around the movie box office revenue prediction problem. One of the most cited work for this specific problem is the paper “Predicting box-office success of motion pictures with neural networks”, and the author is Ramesh Sharda. He used neural networks as the main algorithm to perform box office prediction on a subset of our data.  We referred to prior literature and adopted identical problem formulation(as a multinomial classification), model evaluation metrics to enable better benchmarking of our results.
 
 
 ## 3 Data Preparation
-Our base data consists of two csv files containing information about 5000 movies and the list of their cast and crew members ( in the same order as they appear in the movie credits) downloaded from Kaggle (  https://www.kaggle.com/tmdb/tmdb-movie-metadata/data).
+Our base data consists of two csv files containing information about 5000 movies and the list of their cast and crew members ( in the same order as they appear in the movie credits) downloaded from Kaggle (https://www.kaggle.com/tmdb/tmdb-movie-metadata/data).
 The original schemas of these two datasets are as follows,
 
 
@@ -59,10 +56,10 @@ names(credits)
 The data preparation process involved four main steps:
 
 ### 3.1 Data Cleaning
-Some rows of data had a lot of missing values. The fact that these were text based features made it hard to impute. These were manually removed to ensure the data is clean and ready to use.
+Some rows of data had a lot of missing values and some others were improperly formatted. In this step, we filtered cleaned or removed such rows to ensure the data is clean and ready to use.
 
 ### 3.2 Data Parsing
-Since a lot of the data in columns was stored as JSON arrays, we had to manipulate the dataframe to extract relevant information from these columns. We extracted the first 2 genres, first 2 production houses, first 2 keywords, first 6 cast members and crew members in important positions like Producer, Director etc. We did this on the entire dataset. We have shown a sample code for parsing the genres column below. The other JSON columns were parsed similarly and stored in csv files. We subsequently read the stored csv files in the next step.
+Since a lot of the data in columns was stored as JSON arrays, we had to manipulate the dataframe to extract relevant information from these columns. We extracted the first 2 genres, first 2 production houses, first 2 keywords, first 6 cast members and crew members in important positions like Producer, Director etc. We did this on the entire dataset. We have shown a sample code for parsing the genres column below. The other JSON columns were parsed similarly and stored in csv files.
 
 
 ```r
@@ -113,7 +110,7 @@ movies.cleaned <- movies.cleaned[ , !(names(movies.cleaned) %in% c("genres"))]
 For cast and crew members in the original data, we sourced popularity, birthdates and overview from TMDB using the TMDB API.
 Thus, we enriched the original dataset with popularity indicator, age, and mentions of academy award or golden globe in their overview(assuming these will only be mentioned if the person is nominated or wins the respective awards) of the cast and crew members.
 We have retrieved this information using the API and stored it in csv files for enriching our existing dataset.
-The csv files are then imported and integrated with the existing dataset for data enrichment as shown in the snippet below..
+The csv files are then imported and integrated with the existing dataset for data enrichment as shown in the snippet below.
 
 
 ```r
@@ -256,9 +253,9 @@ We also created some other features as follows:
 
 - Month of release
 
-- Days to nearest holiday
+- Days to nearest holiday around movie released
 
-- Number of movies released in a 2 week window around the release date (As a proxy for competition)
+- Number of movies released in a 2 week window around the movie release date (As a proxy for competition)
 
 - Consumer Price Index for month and year as a proxy for inflation
 
@@ -282,15 +279,15 @@ historical_sample_final <- historical_sample_order %>% group_by(Producer) %>% mu
 features_df<-historical_sample_final[,c("id","HistoricalRevenue_Producer","HistoricalNoofFilmsProducer")]
 historical_data_integrated<-merge(movies.cleaned,features_df,by=c("id"))
 ```
-The same procedure was repeated to compute the feature for other members.
+The same procedure was repeated to compute historical features for other fields.
 
 ## 5. Modelling Overview
 
-The problem is designed to be a multi class classification problem and we are trying to predict the revenue bucket a movie can be classified to. Having explored a range of predictors in the feature creation section,  **71** shortlisted features were fed into the models to predict revenue buckets.
+The problem is designed to be a multi class classification problem and we are trying to predict the revenue bucket a movie will fall into. Having explored a range of predictors in the feature creation section,  **71** shortlisted features were fed into the models to predict the revenue bucket.
 
-The revenue bucket cutoffs have been identified by breaking the continuous revenue variable into deciles. We have revenue buckets ranging from 1 (flop movie) to 10(blockbuster) into which we can classify the movie into. The revenue cutoffs for each bucket been decided based on deciling the revenue variable over the dataset to avoid the class imbalance problem.
+The revenue bucket cutoffs have been identified by breaking the continuous revenue variable into deciles. We have revenue buckets ranging from 1 (flop movie) to 10(blockbuster) into which we can classify the movie into. This method helps avoid class imbalance in the target variable.
 
-In the snippet below, we pre load the final dataset named data_movies with all features in the working environment and then create the multi-class target variable based on decile values of revenue.
+In the snippet below, we pre load the final dataset named data_movies with all features in the working environment and then create the multi-class target variable as discussed.
 
 ```r
 require(dplyr)
@@ -327,15 +324,14 @@ data_movies[shuffled.index, "fold"] <- rep(1:K, length.out=n)
 
 
 ### 5.1 Elastic Net Model
-The Elastic Net algorithm works by shrinking the beta coefficients of less important variables towards zero. It has two main parameters to tune - alpha and lambda. Lambda is the penalty coefficient and it's allowed to take any number. Alpha refers to the type of model we want to try and ranges from 0 to 1. If alpha = 0, we have a ridge model and if alpha = 1, we have a LASSO model and any value in between is an intermediate elastic net.
-Since our problem is a multi class classification problem, we have used the multinomial family in the elastic net to build our model.
+The Elastic Net algorithm works by shrinking the beta coefficients of less important variables towards zero. It has two main parameters to tune - alpha and lambda. Lambda is the penalty coefficient and it's allowed to take any number. Alpha refers to the type of model we want to try and ranges from 0 to 1. If alpha = 0, we have a ridge model and if alpha = 1, we have a LASSO model and any value in between is an intermediate elastic net. Since our problem is a multi-class classification problem, we have used the multinomial family in the elastic net to build our model.
 
 We obtained an optimal alpha value of 1 and optimal 1SE lambda value of 0.006 as seen from the table below.
 
 ![**Figure 1: Tuning Parameters for ElasticNet**](/images/GLMNetTuning.png)
 
 
-To compare the champion Elastic Net Model with other models we deploy manual K-Fold Cross Validation. We have already made 10 folds on our dataset and we will use them for getting our confusion matrix, bingo classification accuracy and 1-Away classification accuracy of the elastic net model.
+To compare the champion elastic net Model with other models we deploy manual K-Fold cross validation. We have already made 10 folds on our dataset and we will use them for getting our confusion matrix, bingo classification accuracy and 1-Away classification accuracy of the elastic net model.
 
 
 
@@ -360,7 +356,7 @@ data_movies[data_movies$fold == k, "el.predict"] <- as.numeric(predict(el.fitted
 }
 ```
 
-The 10*10 confusion matrix for the Elastic Net Model can be seen as follows,
+The 10*10 confusion matrix for the elastic net Model can be seen as follows,
 
 ```r
 ###Confusion Matrix####
@@ -410,7 +406,7 @@ final_acc_el
 
 ### 5.2 Random Forest Model
 
-In the random forest model for multi class classification, we have tuned the model for mtry parameter. Mtry parameter in random forest refers to the number of features we select by random sampling while building each tree in the forest. We have obtained an optimal mtry of 28 as seen from the following plot.
+In the random forest model for multi-class classification, we have tuned the mtry parameter. Mtry parameter in random forest refers to the number of features we select by random sampling while building each tree in the forest. We have obtained an optimal mtry of 28 as seen from the following plot.
 
 ![**Figure 2: Tuning Parameters for Random Forest**](/images/Mtry_RandomForest.png)
 
@@ -434,7 +430,7 @@ varImpPlot(rf_overall, main="Variable Importance - Random Forest", n.var=20)
 
 ![png](/images/boxoffice_varimp.png)
 
-To compare the champion random forest model with other models we deploy manual K-Fold Cross Validation. We have already made 10 folds on our dataset and we will use them for getting our Confusion Matrix, Bingo Classification Accuracy and 1-Away Classification Accuracy of the Elastic Net Model. The K-Folds used for Cross validation are consistent with the ones used in the prior elastic net model.
+To compare the champion random forest model with other models we deploy manual K-Fold cross validation. We have already made 10 folds on our dataset and we will use them for getting our evaluation metrics. The K-Folds used for cross validation are consistent with the ones used in the prior elastic net model.
 
 ```r
 data_movies$rf.predict<- NA
@@ -506,6 +502,7 @@ The XGBoost model for predicting the revenue buckets has been trained on the ent
 - ColSample Ratio - 1
 - Number of Rounds - 4082
 
+In the following snippet, we use the tuned hyper parameters to build an xgboost model on the entire dataset.
 
 ```r
   opt <- 84
@@ -528,7 +525,7 @@ xgb_overall <- xgboost(data=dtrain, objective="multi:softmax", num_class=10,nrou
 #str(xgb_overall)
 ```
 
-To compare the champion XGBoost Model with other models, we deploy manual K-Fold cross validation and The K-folds used for cross validation are consistent with the ones used in the last 2 models.
+To compare the champion XGBoost Model with other models, we deploy manual K-Fold cross validation. The K-folds used for cross validation are consistent with the ones used in the last 2 models.
 
 
 ```r
@@ -613,7 +610,7 @@ final_acc_xgb
 ### 5.4 Ensemble Model
 In the Ensemble Model, we attempt to combine the strengths of our multiple champion models to improve our prediction accuracy. The strategy we identified to create the best predictions was to compute bingo classification accuracy for each class of prediction from revenue bucket 1 to 10 and decide the predictions for our ensemble based on the best classification accuracy from each bucket.
 
-In our case, the Elastic Net Model performed best in the extreme revenue buckets (1,2,9,10) and the Random Forest model gives very good accuracy in the intermediate revenue buckets. This can be seen from the table displayed in the Model Comparison section.
+In our case, the Elastic Net Model performed best in the extreme revenue buckets (1,2,9,10) and the Random Forest model gives very good accuracy in the intermediate revenue buckets. This can be seen from the table displayed in the model comparison section.
 
 
 
@@ -657,7 +654,7 @@ data_movies$ensemble.predict<-ifelse(data_movies$el.predict %in% c(1,2,9,10), da
     acc_fold_ensemble[i]<-cm_rs_ensemble[i,i]/cm_rs_ensemble[i,"TotalActuals"]
 ```
 
-The Bingo Classification Accuracy for the Ensemble Model is as follows,
+The bingo classification accuracy for the Ensemble Model is as follows,
 
 ```r
 final_acc_ensemble<- mean(acc_fold_ensemble)
@@ -668,9 +665,9 @@ final_acc_ensemble
 ## [1] 0.2764194
 ```
 
-## 6. Model Comparison{#modelcomparison}
+## 6. Model Comparison
 
-To compare the multiple models, we have done manual K-Fold cross validation with consistent folds as shown in the prior sections. The following figure shows the variation of Bingo Classification Accuracy and 1-Away Classification Accuracy across the revenue buckets as well as the overall accuracies.
+The following figure shows the variation of bingo classification accuracy and 1-away classification accuracy across the revenue buckets as well as the overall accuracies.
 
 
 ![**Figure 3: Model Comparison - Bingo and One Away Classification Accuracy**](/images/ModelComparison.png)
@@ -683,7 +680,7 @@ To compare the multiple models, we have done manual K-Fold cross validation with
 The Random Forest model performs the best among the 3 traditional models that we have implemented with a Bingo Classification Accuracy of **27.43%** and 1-Away Classification Accuracy of **59.24%**.
 
 ## 7. Key Model Insights
-1) The models primarily indicated that although several innovative variables were deployed and had some relevance as seen in the Variable Importance Plot, the conventional variables like budget remained the primary factor driving movie box office success
+1) Although several innovative features were used and had some relevance as seen in the Variable Importance Plot, the conventional variables like budget remained the primary factor driving movie box office success
 
 2) In addition to directors and cast, the brand of the production company plays an extremely important role in how well a movie performs at the box office
 
@@ -693,17 +690,17 @@ The Random Forest model performs the best among the 3 traditional models that we
 
 ## 8. Model Limitations
 
-1) The movies dataset in Kaggle has not been through a thorough data quality analysis. There are many recent movies with incomplete revenues reported as per discussions on Kaggle
+1) The movies dataset in Kaggle has not been through a thorough data quality analysis. There are many recent movies with incomplete revenues reported that we could have missed out in data cleaning process
 
 2) The global revenues reported for each movie are not always consistently in US Dollars which necessitated filtering only English Language movies for our analysis
 
-3) The movies dataset has a lot of text based features like movie overview, keywords etc. which can be explored to further improve the model accuracy
+3) The movies dataset has a lot of text based features like movie overview, keywords etc. which can be explored using NLP techniques to further improve the model accuracy
 
 ## 9. Conclusion
 
-The model comparisons show that Random Forest has proven to be the best statistical modelling method for this multinomial classification problem with a Bingo Classification Accuracy of 27.43% and a 1 Away Classification Accuracy of 59.43%. The Ensemble Model we built performed marginally better than our Random Forest Model on the Bingo Classification Accuracy measure. The primary research paper cited for the movie box office prediction was by Sharda which had a Neural Network Classifier perform the best with a Bingo Classification Accuracy of 36.9%. However the dataset used by the research paper was a much smaller subset of our dataset(excluding a lot of old movies), had fewer revenue buckets and incorporated a lot of features from prior knowledge about the movie industry.
+The model comparisons show that Random Forest has proven to be the best statistical modelling method for this multinomial classification problem with a Bingo Classification Accuracy of 27.43% and a 1-Away Classification Accuracy of 59.43%. The Ensemble Model we built performed marginally better than our Random Forest Model on the Bingo Classification Accuracy measure. The primary research paper cited for the movie box office prediction was by Sharda which had a Neural Network Classifier perform the best with a Bingo Classification Accuracy of 36.9%. However the dataset used by the research paper was on a much smaller subset of our dataset(excluding a lot of old movies), had fewer revenue buckets and incorporated a lot of features from domain knowledge about the movie industry.
 
-The performance of our models can be further by improving the completeness/reliability of revenue reported for the most recently released movies. There are other text based fields like keywords, movie overview which can be explored as well to improve model performance. However these features are a good starting point to improve on our prediction accuracy on the movie box office prediction problem.
+The performance of our models can be further enhanced by improving the completeness/reliability of revenue reported for the most recently released movies. There are other text based fields like keywords, movie overview which can be explored using NLP to improve model performance. However, the current features are a good starting point to improve on our prediction accuracy in the movie box office prediction problem.
 
 
 ## 10. References
