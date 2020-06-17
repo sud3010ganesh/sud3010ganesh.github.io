@@ -102,7 +102,7 @@ analytics:
 author:
   name             : "Sudharsan Ganesh"
   avatar           : "/images/biophoto.jpg"
-  bio              : "M.Sc Business Analytics at NUS | Past - Decision Scientist at Mu Sigma | Current - Data Science Intern at NTUC Link"
+  bio              : "Senior Data Scientist at Dyson | M.Sc Business Analytics at NUS | Ex - Decision Scientist at Mu Sigma "
   location         : "Singapore"
   email            : "sud3010ganesh@gmail.com"
   uri              :
@@ -113,7 +113,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           : "sud3010ganesh"
+  github           : # "sud3010ganesh"
   gitlab           :
   google_plus      :
   keybase          :
