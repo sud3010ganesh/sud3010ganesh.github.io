@@ -19,7 +19,7 @@ Let's start by looking at the different steps in a ML pipeline before we getting
 
 It is imperative to ensure that every single stage of the machine learning pipeline we have outlined above produces identical results given the same inputs.
 
-#### Reproducibility during data gathering  
+## Reproducibility during data gathering  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data gathering stage represents the most difficult challenge in reproducibility. The problems here occur when we cannot reproduce the creation of a training dataset in a subsequent period. For example, if databases are designed such that they are updated and overwritten constantly, the values present at a given time may be overwritten in a subsequent time window posing a challenge from the reproducibility stand point. 
 
@@ -27,7 +27,7 @@ In order to ensure reproducibility in the data gathering phase, one good practis
 
 Another problem that can arise is due to the inherent randomness in the order of retrieving records by SQL. In order to mitigate for the randomness in retrieving data by SQL, we can sort data by a unique identifier at the data gathering phase. 
 
-#### Reproducibility during feature creation 
+## Reproducibility during feature creation 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lack of reproducibility in the feature creation step can arise due to a multitude of factors. Imputation of missing values with statistical values like mean, median or mode produces different results each time if the underlying training data isn't reproducible. Many parameters extracted in the feature engineering stage depend on the training data and this can be solved by ensuring data reproducibility. 
 
@@ -35,7 +35,7 @@ Categorical feature transformations like one hot encoding create issues in situa
 
 Finally, application of coding best practises like tracking feature generation code under version code and publishing them with timestamped hashed versions can minimize the lack of reproducibility in feature creation to a large extent.
 
-#### Reproducibility during model building 
+## Reproducibility during model building 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the model building stage recording the order of features, the applied feature transformations e.g., min-max scaling and the hyperparameters are critical in ensuring reproducibility of models. 
 
@@ -43,7 +43,7 @@ For models that have an inherent element of randomness in the training stage lik
 
 If the final model that we planned to deploy is not a standalone model but a stacked one, we also have to record the structure of the ensemble. 
 
-#### Reproducibility during model deployment 
+## Reproducibility during model deployment 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To ensure full reproducibility in model deployment stage, the software versions should match exactly. Applications must list all third party libraries, dependencies and versions. 
 
@@ -52,6 +52,6 @@ It is really beneficial to leverage dependency management tools like Pipenv, Poe
 Finally, prior to building the machine learning model, it is necessary for the data scientist to have a good understanding of how the model will integrated in production and consumed by other systems in the business eventually. This understanding will ensure that ML pipeline is designed with the integration consideration in mind. A major loss of the benefit that the model should provide arises due to erroneous integration of the model with other business systems. 
 
 
-> Keeping in mind some of these considerations during development can help mitigate the pain of ending up with non-reproducible machine learning workflows. 
+>  Factoring in the ideas discussed here while designing our ML pipelines can help improve the reproducibility of ML workflows. 
 
 
