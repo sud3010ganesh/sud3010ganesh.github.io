@@ -1,5 +1,5 @@
 ---
-title: "Building Reproducing ML Pipelines"
+title: "Building Reproducible ML Pipelines"
 permalink: /2020-07-16-buildingreproduciblemlpipelines/
 ---
 
