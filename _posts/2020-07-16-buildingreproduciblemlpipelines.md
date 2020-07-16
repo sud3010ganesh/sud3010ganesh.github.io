@@ -15,9 +15,9 @@ This lack of reproducibility can have significant financial costs.
 
 In machine learning deployment, it is necessary to note that we don't just deploy the final machine learning algorithm but a complete pipeline that has multiple steps. 
 
-Let's start by looking at the different steps in a ML pipeline before we getting into the topic of reproducibility. The first stage involves gathering data from raw data sources, variables are transformed subsequently and relevant features are selected. We then train and tune the model, choosing the best model hyperparameters based on an error metric. At this point, we have a model ready for deployment and integration with other systems in the business. 
+Let's start by looking at the different steps in a ML pipeline before we dive into the topic of reproducibility. The first stage involves gathering data from raw data sources, variables are transformed and relevant features are selected subsequently. We then train and tune the model, choose the best model hyperparameters based on an error metric. At this point, we have a model ready for deployment and integration with other systems in the business. 
 
-It is imperative to ensure that every single stage of the machine learning pipeline we have outlined above produces identical results given the same inputs.
+It is imperative to ensure that every single stage of the machine learning pipeline we have outlined here produces identical results given the same inputs.
 
 ## Reproducibility during data gathering  
 
@@ -25,7 +25,7 @@ It is imperative to ensure that every single stage of the machine learning pipel
 
 In order to ensure reproducibility in the data gathering phase, one good practise is to save a data snapshot being used to train the model at any given instant. This is pretty helpful when the size of the data is not too big. Alternatively, we can try to ensure the database design does not overwrite historical data and we store archives with time stamps such that a view of the data at any point in time can be obtained. 
 
-Another problem that can arise is due to the inherent randomness in the order of retrieving records by SQL. In order to mitigate for the randomness in retrieving data by SQL, we can sort data by a unique identifier at the data gathering phase. 
+Another problem that can arise is due to the inherent randomness in the order of retrieving records by SQL. In order to mitigate the randomness in retrieving data by SQL, we can sort data by a unique identifier at the data gathering phase. 
 
 ## Reproducibility during feature creation 
 
